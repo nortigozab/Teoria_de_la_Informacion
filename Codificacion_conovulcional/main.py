@@ -82,7 +82,8 @@ def agregarNodos(t, n, a, G):
     return G
 
 
-def ingresarRelaciones(d, t, t1):
+def ingresarRelaciones(d, t):
+    t1 = []
     for i in range(int(d)+1, len(t)):
         e = False
         while e == False:
@@ -165,9 +166,10 @@ def imprimir_tabla_verdad(n):
     return filas
 
 
-def tabla(t, t1, d, s):
-    val = imprimir_tabla_verdad(int(d))
-
+def tabla(t1, d):
+    val = imprimir_tabla_verdad(int(d)+1)
+    print("{:<2} {:<4} {:<2} {:<6} {:<2} {:<6} {:<2} {:<11} {:<2}".format(
+        "|", "Ent", "|", "Inicial", "|", "Siguiente", "|", "Salidas", "|"))
     for i in range(len(val)):
         inicial = val[i]
         ent = "0"
@@ -176,9 +178,30 @@ def tabla(t, t1, d, s):
             aux = list(inicial)
             aux.pop()
             aux.insert(0, ent)
+            aux[1] = ent
             sig = ''.join(aux)
-            print(ent+"|"+inicial+"|"+sig)
-            inicial = sig
+            ss = ""
+            for k in range(len(t1)):
+                au = t1[k].split(",")
+                y3 = "0"
+                for h in range(len(au)-1):
+                    y = aux[int(au[h])]
+                    if h == 0:
+                        y1 = aux[int(au[h+1])-1]
+                        if y == y1:
+                            y3 = "0"
+                        else:
+                            y3 = "1"
+                    else:
+                        if y3 == aux[int(au[h+1])]:
+                            y3 = "0"
+                        else:
+                            y3 = "1"
+                ss += y3
+                if k != len(t1)-1:
+                    ss += ","
+            print("{:<2} {:<4} {:<2} {:<7} {:<2} {:<7} {:<2} {:<11} {:<2}".format(
+                "|", ent, "|", inicial[1:], "|", sig[1:], "|", ss, "|"))
             if ent == "1":
                 ent = "0"
             else:
@@ -217,30 +240,33 @@ while m != "0":
         input()
         clear()
     if m == "2":
-        e = False
-        while e == False:
-            d = input(color["rojo"] +
-                      "cuantos Elementos de Memoria quiere[5-6]: ")
-            if int(d) == 5 or int(d) == 6:
-                e = True
-            clear()
-        G = agregarNodos(t, d, 0, G)
-    if m == "3":
-        if d != "-1":
+        if d == "-1":
             e = False
             while e == False:
-                s = input(color["morado"]+"Cuantas suma mod 2 quiere[3,4,5]: ")
-                if int(s) >= 3 and int(s) <= 5:
+                d = input(color["rojo"] +
+                          "cuantos Elementos de Memoria quiere[<=6]: ")
+                if int(d) >= 2 and int(d) <= 6:
                     e = True
                 clear()
-            G = agregarNodos(t, s, 1, G)
+            G = agregarNodos(t, d, 0, G)
+    if m == "3":
+        if d != "-1":
+            if s == "-1":
+                e = False
+                while e == False:
+                    s = input(color["azul"] +
+                              "Cuantas suma mod 2 quiere[3,4,5]: ")
+                    if int(s) >= 3 and int(s) <= 5:
+                        e = True
+                    clear()
+                G = agregarNodos(t, s, 1, G)
         else:
             print(
                 color["amarillo"]+"Ingrese valor para Elementos de memoria primero"+color["fin"])
             input()
     if m == "4":
         if d != "-1" and s != "-1":
-            t1 = ingresarRelaciones(d, t, t1)
+            t1 = ingresarRelaciones(d, t)
             G = crearRelaciones(G, t, t1, 2)
         else:
             print("No se puede Relacionar nada, ingrese Elementos y sumas")
