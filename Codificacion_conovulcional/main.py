@@ -234,7 +234,7 @@ while m != "0":
         elif d != "-1" and s != "-1":
             imprimirTablaCon(t, t1)
             printGraph(G)
-            tabla(t, t1, d, s)
+            tabla(t1, d)
         else:
             print("No se puede imprimir nada, ingrese Elementos y sumas")
         input()
