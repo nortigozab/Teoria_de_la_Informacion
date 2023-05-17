@@ -22,13 +22,26 @@ def clear():
         os.system("clear")  # Todo: linux
 
 
-def printGraph(G):
+def printGraph(G, w=[], ref=[], d="0"):
+    # Crear la figura y los ejes
+    fig = plt.figure(figsize=(10, 5))
+
+    # Tabla con datos de w en el lado izquierdo superior
+    tabla_ax = fig.add_subplot(2, 3, 1)
+    datos = w
+    tabla = tabla_ax.table(cellText=datos, loc='center')
+    tabla.auto_set_font_size(False)
+    tabla.set_fontsize(8)
+    tabla.scale(1, 1)
+    tabla_ax.axis('off')
+
+    # Gráfico nx en el lado izquierdo inferior
+    graph_ax = fig.add_subplot(2, 3, 4)
     pos = nx.shell_layout(G)
     x1 = 0.0
     x2 = 3.0
-    color = ["green"]*len(G.nodes)
+    color = ["green"] * len(G.nodes)
     for posicion, clave in enumerate(pos):
-        # Hacer algo con esa clave
         if clave[0] == "E":
             pos[clave][0] = x1
             pos[clave][1] = 0.0
@@ -44,17 +57,43 @@ def printGraph(G):
             x2 += 3
             color[posicion] = "purple"
     labels = nx.get_edge_attributes(G, 'weight')
-    # positions for all nodes
-    # nodes
-    nx.draw_networkx_nodes(G, pos, node_size=500, node_color=color)
-    # edges
-    nx.draw_networkx_edges(G, pos, width=1.5, arrowstyle='->')
-    # labels
-    nx.draw_networkx_labels(G, pos, font_size=10,
-                            font_family='sans-serif', font_color="white")
+    nx.draw_networkx_nodes(G, pos, node_size=500,
+                           node_color=color, ax=graph_ax)
+    nx.draw_networkx_edges(G, pos, width=1.5, arrowstyle='->', ax=graph_ax)
+    nx.draw_networkx_labels(
+        G, pos, font_size=10, font_family='sans-serif', font_color="white", ax=graph_ax)
     labels = nx.get_edge_attributes(G, 'weight')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-    plt.axis('off')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels, ax=graph_ax)
+    graph_ax.axis('off')
+
+    # Tabla con datos de ref dividida en dos en el lado derecho completo
+    tabla_ax1 = fig.add_subplot(2, 3, (2, 5))
+    titulo = ref[0]
+    # print(len(ref))
+    datos1 = [titulo] + ref[1:(len(ref)-1)//2]
+    datos2 = [titulo] + ref[(len(ref)-1)//2:]
+    # print("datos1: ", datos1)
+    # print("datos2: ", datos2)
+    # print("ref: ", ref)
+    tabla1 = tabla_ax1.table(cellText=datos1, loc='center')
+    tabla1.auto_set_font_size(False)
+    if int(d) > 4:
+        tabla1.set_fontsize(8)
+        tabla1.scale(0.8, 0.8)
+    else:
+        tabla1.set_fontsize(10)
+        tabla1.scale(1, 1)
+    tabla_ax1.axis('off')
+
+    tabla_ax2 = fig.add_subplot(2, 3, (3, 6))
+    tabla2 = tabla_ax2.table(cellText=datos2, loc='center')
+    tabla2.auto_set_font_size(False)
+    if int(d) > 4:
+        tabla2.set_fontsize(8)
+        tabla2.scale(0.8, 0.8)
+    else:
+        tabla2.set_fontsize(10)
+    tabla_ax2.axis('off')
     plt.show(block=False)
 
 
@@ -141,12 +180,13 @@ def imprimirTablaCon(t, t1):
     max_node_length = max(len(node) for node, _ in table_data)
     max_data_length = max(len(data) for _, data in table_data)
 
-    print("Node" + " " * (max_node_length - 4) +
-          " | Related Data" + " " * (max_data_length - 12))
-    print("-" * (max_node_length + max_data_length + 15))
+    # print("Node" + " " * (max_node_length - 4) +" | Related Data" + " " * (max_data_length - 12))
+    # print("-" * (max_node_length + max_data_length + 15))
+    ss = [["Nodo", "Valores"]]
     for node, data in table_data:
-        print(node + " " * (max_node_length - len(node) + 1) +
-              "|" + data + " " * (max_data_length - len(data)))
+        ss.append([node, data])
+        # print(node + " " * (max_node_length - len(node) + 1) +"|" + data + " " * (max_data_length - len(data)))
+    return ss
 
 
 def imprimir_tabla_verdad(n):
@@ -166,47 +206,39 @@ def imprimir_tabla_verdad(n):
     return filas
 
 
-def tabla(t1, d):
-    val = imprimir_tabla_verdad(int(d)+1)
-    print("{:<2} {:<4} {:<2} {:<6} {:<2} {:<6} {:<2} {:<11} {:<2}".format(
-        "|", "Ent", "|", "Inicial", "|", "Siguiente", "|", "Salidas", "|"))
+def tabla(t1, d, ref):
+    val = imprimir_tabla_verdad(int(d))
+    ref = [["Ent", "Ini", "Sig", "Sal"]]
+    # print("{:<2} {:<4} {:<2} {:<6} {:<2} {:<6} {:<2} {:<11} {:<2}".format( "|", "Ent", "|", "Inicial", "|", "Siguiente", "|", "Salidas", "|"))
     for i in range(len(val)):
         inicial = val[i]
         ent = "0"
         sig = "0"
         for j in range(2):
             aux = list(inicial)
-            aux.pop()
             aux.insert(0, ent)
             aux[1] = ent
             sig = ''.join(aux)
             ss = ""
             for k in range(len(t1)):
                 au = t1[k].split(",")
-                y3 = "0"
-                for h in range(len(au)-1):
-                    y = aux[int(au[h])]
-                    if h == 0:
-                        y1 = aux[int(au[h+1])-1]
-                        if y == y1:
-                            y3 = "0"
-                        else:
-                            y3 = "1"
-                    else:
-                        if y3 == aux[int(au[h+1])]:
-                            y3 = "0"
-                        else:
-                            y3 = "1"
-                ss += y3
+                y3 = []
+                for h in range(len(au)):
+                    k1 = int(au[h])
+                    y3.append(aux[k1])
+                resul = int(y3[0])
+                for elemento in y3[1:]:
+                    resul ^= int(elemento)
+                ss += str(resul)
                 if k != len(t1)-1:
                     ss += ","
-            print("{:<2} {:<4} {:<2} {:<7} {:<2} {:<7} {:<2} {:<11} {:<2}".format(
-                "|", ent, "|", inicial[1:], "|", sig[1:], "|", ss, "|"))
+            # print("{:<2} {:<4} {:<2} {:<7} {:<2} {:<7} {:<2} {:<11} {:<2}".format("|", ent, "|", inicial, "|", sig[1:], "|", ss, "|"))
+            ref.append([ent, inicial, sig[1:], ss])
             if ent == "1":
                 ent = "0"
             else:
                 ent = "1"
-    return
+    return ref
 
 
 G = nx.DiGraph()    # crear un grafo
@@ -215,30 +247,33 @@ t1 = []  # creamos un arreglo de relaciones
 d = "-1"
 s = "-1"
 m = "-1"
+ref = []
 clear()
 while m != "0":
     print(color["blanco"], "|:----------------------------:|")
     print(" | Bienvenido al menu Principal |")
     print(" |:----------------------------:|\n", color["fin"])
-    print(color["verde"], "1.Imprimir Modelamiento.")
+    if d != "-1" and s != "-1" and len(t1) > 0:
+        print(color["verde"], "1.Imprimir Modelamiento.")
     print(color["rojo"],  "2. Ingresar Elementos de memoria.")
     print(color["azul"],  "3. Ingresar suma mod 2.")
     print(color["morado"], "4. Ingresar Relaciones.")
+    print(color["amarillo"], "5. Reiniciar.")
+    if d != "-1" and s != "-1" and len(t1) > 0:
+        print(color["cian"], "6. Ingresar palabras.")
     print(color["blanco"], "0. Salir")
     m = input("Opcion: ")
     clear()
     if m == "1":
-        if d != "-1" and s == "-1":
-            imprimirTablaCon(t, t1)
-            printGraph(G)
-        elif d != "-1" and s != "-1":
-            imprimirTablaCon(t, t1)
-            printGraph(G)
-            tabla(t1, d)
+        if d != "-1" and s != "-1" and len(t1) > 0:
+            w = imprimirTablaCon(t, t1)
+            ref = tabla(t1, d, ref)
+            printGraph(G, w, ref, d)
         else:
             print("No se puede imprimir nada, ingrese Elementos y sumas")
         input()
         clear()
+        plt.close(1)
     if m == "2":
         if d == "-1":
             e = False
@@ -271,6 +306,28 @@ while m != "0":
         else:
             print("No se puede Relacionar nada, ingrese Elementos y sumas")
             input()
+    if m == "5":
+        H = nx.DiGraph()    # crear un grafo
+        G = H
+        t = ["E"]  # Creamos un arreglo de nodos
+        t1 = []  # creamos un arreglo de relaciones
+        d = "-1"
+        s = "-1"
+        ref = []
+        plt.close(1)
+        print(color["verde"], " Reinicio Efectivo ", color["fin"])
+        input()
+    if m == "5":
+        H = nx.DiGraph()    # crear un grafo
+        G = H
+        t = ["E"]  # Creamos un arreglo de nodos
+        t1 = []  # creamos un arreglo de relaciones
+        d = "-1"
+        s = "-1"
+        ref = []
+        plt.close(1)
+        print(color["verde"], " Reinicio Efectivo ", color["fin"])
+        input()
     clear()
 # Añadir nodos
 # Añadir aristas
