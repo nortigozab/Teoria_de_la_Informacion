@@ -1,5 +1,6 @@
 import os
 import networkx as nx
+import bits as bi
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('TkAgg')
@@ -25,14 +26,14 @@ def clear():
 def printGraph(G, w=[], ref=[], d="0"):
     # Crear la figura y los ejes
     fig = plt.figure(figsize=(10, 5))
-
+    plt.tight_layout()
+    root = plt.get_current_fig_manager().window
+    root.title("Datos Generales")
     # Tabla con datos de w en el lado izquierdo superior
     tabla_ax = fig.add_subplot(2, 3, 1)
     datos = w
     tabla = tabla_ax.table(cellText=datos, loc='center')
-    tabla.auto_set_font_size(False)
-    tabla.set_fontsize(8)
-    tabla.scale(1, 1)
+    tabla.auto_set_font_size(True)
     tabla_ax.axis('off')
 
     # Gráfico nx en el lado izquierdo inferior
@@ -76,23 +77,20 @@ def printGraph(G, w=[], ref=[], d="0"):
     # print("datos2: ", datos2)
     # print("ref: ", ref)
     tabla1 = tabla_ax1.table(cellText=datos1, loc='center')
-    tabla1.auto_set_font_size(False)
+    tabla1.auto_set_font_size(True)
     if int(d) > 4:
-        tabla1.set_fontsize(8)
         tabla1.scale(0.8, 0.8)
     else:
-        tabla1.set_fontsize(10)
         tabla1.scale(1, 1)
     tabla_ax1.axis('off')
 
     tabla_ax2 = fig.add_subplot(2, 3, (3, 6))
     tabla2 = tabla_ax2.table(cellText=datos2, loc='center')
-    tabla2.auto_set_font_size(False)
+    tabla2.auto_set_font_size(True)
     if int(d) > 4:
-        tabla2.set_fontsize(8)
         tabla2.scale(0.8, 0.8)
     else:
-        tabla2.set_fontsize(10)
+        tabla2.scale(1, 1)
     tabla_ax2.axis('off')
     plt.show(block=False)
 
@@ -175,13 +173,6 @@ def imprimirTablaCon(t, t1):
             table_data.append([s_node, ",".join(related_data)])
         else:
             table_data.append([s_node, ""])
-
-    # Imprimir la tabla
-    max_node_length = max(len(node) for node, _ in table_data)
-    max_data_length = max(len(data) for _, data in table_data)
-
-    # print("Node" + " " * (max_node_length - 4) +" | Related Data" + " " * (max_data_length - 12))
-    # print("-" * (max_node_length + max_data_length + 15))
     ss = [["Nodo", "Valores"]]
     for node, data in table_data:
         ss.append([node, data])
@@ -250,14 +241,46 @@ m = "-1"
 ref = []
 clear()
 while m != "0":
+    re = ""
+    if d != "-1":
+        for i in range(int(d)):
+            if i == int(d)-1:
+                re += color["rojo"]+"D"+str((i+1))+" "
+            else:
+                re += color["rojo"]+"D"+str((i+1))+","
+    re += "\n"
+    if s != "-1":
+        for i in range(int(s)):
+            re += color["azul"]+"S"+str((i+1))+": "
+            if len(t1) > 0:
+                r1 = ""
+                aux = t1[i].split(",")
+                for j in range(len(aux)):
+                    if aux[j] == "0":
+                        if j == len(aux)-1:
+                            r1 += color["morado"]+"E"+""
+                        else:
+                            r1 += color["morado"]+"E"+","
+                    else:
+                        if j == len(aux)-1:
+                            r1 += color["morado"]+"D"+aux[j]+""
+                        else:
+                            r1 += color["morado"]+"D"+aux[j]+","
+
+                re += r1
+            re += " | "
     print(color["blanco"], "|:----------------------------:|")
     print(" | Bienvenido al menu Principal |")
-    print(" |:----------------------------:|\n", color["fin"])
+    print(" |:----------------------------:|", color["fin"])
+    print(re+"\n")
     if d != "-1" and s != "-1" and len(t1) > 0:
         print(color["verde"], "1.Imprimir Modelamiento.")
-    print(color["rojo"],  "2. Ingresar Elementos de memoria.")
-    print(color["azul"],  "3. Ingresar suma mod 2.")
-    print(color["morado"], "4. Ingresar Relaciones.")
+    if d == "-1":
+        print(color["rojo"],  "2. Ingresar Elementos de memoria.")
+    if s == "-1":
+        print(color["azul"],  "3. Ingresar suma mod 2.")
+    if len(t1) == 0:
+        print(color["morado"], "4. Ingresar Relaciones.")
     print(color["amarillo"], "5. Reiniciar.")
     if d != "-1" and s != "-1" and len(t1) > 0:
         print(color["cian"], "6. Ingresar palabras.")
@@ -273,7 +296,6 @@ while m != "0":
             print("No se puede imprimir nada, ingrese Elementos y sumas")
         input()
         clear()
-        plt.close(1)
     if m == "2":
         if d == "-1":
             e = False
@@ -317,17 +339,10 @@ while m != "0":
         plt.close(1)
         print(color["verde"], " Reinicio Efectivo ", color["fin"])
         input()
-    if m == "5":
-        H = nx.DiGraph()    # crear un grafo
-        G = H
-        t = ["E"]  # Creamos un arreglo de nodos
-        t1 = []  # creamos un arreglo de relaciones
-        d = "-1"
-        s = "-1"
-        ref = []
-        plt.close(1)
-        print(color["verde"], " Reinicio Efectivo ", color["fin"])
-        input()
+    if m == "6":
+        if d != "-1" and s != "-1" and len(t1) > 0:
+            w = imprimirTablaCon(t, t1)
+            bi.menu_bits(G, t, t1, d, s, w)
     clear()
 # Añadir nodos
 # Añadir aristas
