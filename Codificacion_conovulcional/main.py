@@ -199,7 +199,7 @@ def imprimir_tabla_verdad(n):
 
 def tabla(t1, d, ref):
     val = imprimir_tabla_verdad(int(d))
-    ref = [["Ent", "Ini", "Sig", "Sal"]]
+    ref = [["Ent", "Act", "Sig", "Sal"]]
     # print("{:<2} {:<4} {:<2} {:<6} {:<2} {:<6} {:<2} {:<11} {:<2}".format( "|", "Ent", "|", "Inicial", "|", "Siguiente", "|", "Salidas", "|"))
     for i in range(len(val)):
         inicial = val[i]

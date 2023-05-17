@@ -84,7 +84,7 @@ def printGraph(G, w=[], ref=[], pal=[], d="0", b=0):
 def tabla(t1, d, r, ref):
     pal = ""
     pal1 = [["Palabra Original"], [r], ["Palabra Codificada"]]
-    ref = [["Ent", "Ini", "Sig", "Sal"]]
+    ref = [["Ent", "Act", "Sig", "Sal"]]
     inicial = "0"*int(d)
     palabra = list(r)
     # print("{:<2} {:<4} {:<2} {:<6} {:<2} {:<6} {:<2} {:<11} {:<2}".format("|", "Ent", "|", "Inicial", "|", "Siguiente", "|", "Salidas", "|"))
