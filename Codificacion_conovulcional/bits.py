@@ -2,6 +2,7 @@ import os
 import networkx as nx
 import matplotlib
 import matplotlib.pyplot as plt
+import random
 matplotlib.use('TkAgg')
 color = {
     "fin": "\033[0;m",
@@ -20,6 +21,14 @@ def clear():
         os.system("cls")  # Todo: windows
     else:
         os.system("clear")  # Todo: linux
+
+
+def crear_lista(n, x):
+    lista = []
+    for _ in range(n):
+        palabra = ''.join(random.choice(['1', '0']) for _ in range(x))
+        lista.append(palabra)
+    return lista
 
 
 def printGraph(G, w=[], ref=[], pal=[], d="0", b=0):
@@ -76,6 +85,77 @@ def printGraph(G, w=[], ref=[], pal=[], d="0", b=0):
     datos2 = pal
     tabla2 = tabla_ax2.table(cellText=datos2, loc='center', cellLoc='center')
     tabla2.auto_set_font_size(True)
+    if int(d) > 4:
+        tabla2.scale(0.6, 0.6)
+    else:
+        tabla2.scale(1, 1)
+    tabla_ax2.axis('off')
+
+    plt.show(block=False)
+
+
+def printGraph_M(G, w=[], ref=[], pal=[], d="0", b=0):
+    # Crear la figura y los ejes
+    fig = plt.figure(figsize=(10, 5))
+    root = plt.get_current_fig_manager().window
+    root.title("Datos de "+str(b)+" Palabras")
+    # Tabla con datos de w en el lado izquierdo superior
+    tabla_ax = fig.add_subplot(2, 3, 1)
+    datos = w
+    tabla = tabla_ax.table(cellText=datos, loc='center')
+    tabla.auto_set_font_size(True)
+    tabla_ax.axis('off')
+
+    # Gráfico nx en el lado izquierdo inferior
+    graph_ax = fig.add_subplot(2, 3, 4)
+    pos = nx.shell_layout(G)
+    x1 = 0.0
+    x2 = 3.0
+    color = ["green"] * len(G.nodes)
+    for posicion, clave in enumerate(pos):
+        if clave[0] == "E":
+            pos[clave][0] = x1
+            pos[clave][1] = 0.0
+            x1 += 3
+        elif clave[0] == "D":
+            pos[clave][0] = x1
+            pos[clave][1] = 0.0
+            x1 += 3
+            color[posicion] = "red"
+        else:
+            pos[clave][0] = x2
+            pos[clave][1] = -4.0
+            x2 += 3
+            color[posicion] = "purple"
+    labels = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_nodes(G, pos, node_size=500,
+                           node_color=color, ax=graph_ax)
+    nx.draw_networkx_edges(G, pos, width=1.5, arrowstyle='->', ax=graph_ax)
+    nx.draw_networkx_labels(
+        G, pos, font_size=10, font_family='sans-serif', font_color="white", ax=graph_ax)
+    labels = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels, ax=graph_ax)
+    graph_ax.axis('off')
+
+    # Tabla con datos de ref dividida en dos en el lado derecho completo
+    tabla_ax1 = fig.add_subplot(2, 3, (2, 5))
+    # print(len(ref))
+    datos1 = pal[:(len(pal)-1)//2]
+    datos2 = pal[(len(pal)-1)//2:]
+    tabla1 = tabla_ax1.table(cellText=datos1, loc='center')
+    tabla1.auto_set_font_size(True)
+    if int(d) > 4:
+        tabla1.scale(0.8, 0.8)
+    else:
+        tabla1.scale(1, 1)
+    tabla_ax1.axis('off')
+    tabla_ax2 = fig.add_subplot(2, 3, (3, 6))
+    tabla2 = tabla_ax2.table(cellText=datos2, loc='center', cellLoc='center')
+    tabla2.auto_set_font_size(True)
+    if int(d) > 4:
+        tabla2.scale(0.8, 0.8)
+    else:
+        tabla2.scale(1, 1)
     tabla_ax2.axis('off')
 
     plt.show(block=False)
@@ -110,6 +190,45 @@ def tabla(t1, d, r, ref):
             if k != len(t1)-1:
                 ss += ","
         # print("{:<2} {:<4} {:<2} {:<7} {:<2} {:<7} {:<2} {:<11} {:<2}".format("|", ent, "|", act[1:], "|", sig[1:], "|", ss, "|"))
+        ref.append([ent, act[1:], sig[:len(sig)-1], ss])
+        pal += ss
+        inicial = sig[:len(sig)-1]
+    pal = pal.replace(",", "")
+    pal1.append([pal])
+    return ref, pal1
+
+
+def tabla_muchos(t1, d, r, ref):
+    pal = ""
+    pal1 = [["Palabra Original"], [r], ["Palabra Codificada"]]
+    ref = [["Ent", "Act", "Sig", "Sal"]]
+    inicial = "0"*int(d)
+    palabra = list(r)
+    print("{:<2} {:<4} {:<2} {:<6} {:<2} {:<6} {:<2} {:<11} {:<2}".format(
+        "|", "Ent", "|", "Inicial", "|", "Siguiente", "|", "Salidas", "|"))
+    for i in reversed(palabra):
+        ent = i
+        aux = list(inicial)
+        aux.insert(0, ent)
+        sig = ''.join(aux)
+        aux1 = list(inicial)
+        aux1.insert(0, ent)
+        act = ''.join(aux1)
+        ss = ""
+        for k in range(len(t1)):
+            au = t1[k].split(",")
+            y3 = []
+            for h in range(len(au)):
+                k1 = int(au[h])
+                y3.append(aux1[k1])
+            resul = int(y3[0])
+            for elemento in y3[1:]:
+                resul ^= int(elemento)
+            ss += str(resul)
+            if k != len(t1)-1:
+                ss += ","
+        print("{:<2} {:<4} {:<2} {:<7} {:<2} {:<7} {:<2} {:<11} {:<2}".format(
+            "|", ent, "|", act[1:], "|", sig[1:], "|", ss, "|"))
         ref.append([ent, act[1:], sig[:len(sig)-1], ss])
         pal += ss
         inicial = sig[:len(sig)-1]
@@ -185,6 +304,18 @@ def menu_bits(G, t, t1, d, s, w):
                 clear()
             ref, pal = tabla(t1, d, r, ref)
             printGraph(G, w, ref, pal, d, 12)
+            input()
+        if m == "4":
+            r = input(color["verde"]+"Ingrese cantidad de palabras: ")
+            r1 = input(color["verde"]+"Ingrese tamaño palabras: ")
+            clear()
+            pal1 = []
+            pal = []
+            lista = crear_lista(int(r), int(r1))
+            for i in lista:
+                ref, pal = tabla_muchos(t1, d, i, ref)
+                pal1 += pal
+            printGraph_M(G, w, ref, pal1, r, int(r))
             input()
         if m == "0":
             plt.close(1)
